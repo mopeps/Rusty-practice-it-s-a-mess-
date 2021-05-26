@@ -1,3 +1,5 @@
+use traits_media::{Summary,Tweet};
+
 struct Point<T> {
     x: T,
     y: T,
@@ -59,6 +61,16 @@ fn main() {
     } */
 
     println!("The largest number is {}", largest(&number_list));
+    let tweet = Tweet {
+        username: String::from("horse_ebooks"),
+        content: String::from(
+            "of course, as you probably already know, people",
+        ),
+        reply: false,
+        retweet: false,
+    };
+
+    println!("1 new tweet: {}", tweet.summarize());
 }
 
 //OR WE COULD USE
@@ -85,7 +97,7 @@ fn largest_char(list: &[char]) ->  char {
     largest
 }
 /*---------A generic approach would be ------------*/
-fn largest<T: std::cmp::PartialOrd>(list: &[T]) -> T {
+fn largest<T: PartialOrd + Copy>(list: &[T]) -> T {
     let mut largest = list[0];
 
     for &item in list {
@@ -95,7 +107,59 @@ fn largest<T: std::cmp::PartialOrd>(list: &[T]) -> T {
     }
     largest
 }
+/*
+ * Using various generics with traits can be written in two ways
+ * fn some_function<T: Display + Clone, U: Clone + Debug>(t: &T, u: &U) -> i32 
+ * which is okay, but the nicer way would be
+ *
+ * fn some_function<T, U>(t: &T, u: &U) -> i32
+ *      where T: Display + Clone,
+ *            U: Clone + Debug
+ * {...
+ *
+ 
+
+//We can also use the impl Trait syntax in the return position to return a value of some type that implements a trait, as shown here:
+*/
+
+fn returns_summarizable() -> impl Summary {
+    Tweet {
+        username: String::from("horse_ebooks"),
+        content: String::from("of course, as you probably already know, people"),
+        reply: false,
+        retweet: false,
+    }
+}
+// However, you can only use impl Trait if you’re returning a single type.
+// For example, this code that returns either a NewsArticle or 
+// a Tweet with the return type specified as impl Summary wouldn’t work:
+/*
 
 
+fn returns_summarizable(switch: bool) -> impl Summary {
+    if switch {
+        NewsArticle {
+            headline: String::from(
+                "Penguins win the Stanley Cup Championship!",
+            ),
+            location: String::from("Pittsburgh, PA, USA"),
+            author: String::from("Iceburgh"),
+            content: String::from(
+                "The Pittsburgh Penguins once again are the best \
+                 hockey team in the NHL.",
+            ),
+        }
+    } else {
+        Tweet {
+            username: String::from("horse_ebooks"),
+            content: String::from(
+                "of course, as you probably already know, people",
+            ),
+            reply: false,
+            retweet: false,
+        }
+    }
+}
+*/
 
 
